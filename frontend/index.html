@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rainfall & Flood Prediction</title>
+  <!-- Add to <head> -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 40px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    select, input, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e9f7ef;
+      border: 1px solid #d4edda;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Rainfall & Flood Prediction</h2>
+
+  <label for="state">Select State:</label>
+  <label>Select State/UT: </label>
+<select id="state">
+  <option value="andaman & nicobar islands">Andaman & Nicobar Islands</option>
+  <option value="arunachal pradesh">Arunachal Pradesh</option>
+  <option value="assam">Assam</option>
+  <option value="bihar">Bihar</option>
+  <option value="chhattisgarh">Chhattisgarh</option>
+  <option value="coastal andhra pradesh">Coastal Andhra Pradesh</option>
+  <option value="east madhya pradesh">East Madhya Pradesh</option>
+  <option value="east rajasthan">East Rajasthan</option>
+  <option value="gangetic west bengal">Gangetic West Bengal</option>
+  <option value="gujarat region">Gujarat Region</option>
+  <option value="haryana delhi & chandigarh">Haryana Delhi & Chandigarh</option>
+  <option value="himachal pradesh">Himachal Pradesh</option>
+  <option value="jammu & kashmir">Jammu & Kashmir</option>
+  <option value="jharkhand">Jharkhand</option>
+  <option value="kerala">Kerala</option>
+  <option value="konkan & goa">Konkan & Goa</option>
+  <option value="lakshadweep">Lakshadweep</option>
+  <option value="madhya maharashtra">Madhya Maharashtra</option>
+  <option value="marathwada">Marathwada</option>
+  <option value="nagaland manipur mizoram tripura">Nagaland Manipur Mizoram Tripura</option>
+  <option value="north interior karnataka">North Interior Karnataka</option>
+  <option value="orissa">Orissa</option>
+  <option value="punjab">Punjab</option>
+  <option value="rayalaseema">Rayalaseema</option>
+  <option value="south interior karnataka">South Interior Karnataka</option>
+  <option value="sub himalayan west bengal & sikkim">Sub Himalayan West Bengal & Sikkim</option>
+  <option value="tamil nadu">Tamil Nadu</option>
+  <option value="telangana">Telangana</option>
+  <option value="uttar pradesh">Uttar Pradesh</option>
+  <option value="uttarakhand">Uttarakhand</option>
+  <option value="vidarbha">Vidarbha</option>
+  <option value="west madhya pradesh">West Madhya Pradesh</option>
+  <option value="west rajasthan">West Rajasthan</option>
+</select>
+
+
+  <label for="year">Enter Target Year:</label>
+  <input type="number" id="year" placeholder="e.g., 2026" min="2025" max="2100" />
+
+  <button onclick="predictRainfall()">Predict</button>
+
+  <div id="result"></div>
+  <canvas id="rainChart" width="100%" height="50"></canvas>
+</div>
+
+<script>
+  function predictRainfall() {
+    const state = document.getElementById("state").value;
+    const year = document.getElementById("year").value;
+    const resultDiv = document.getElementById("result");
+
+    if (!state || !year) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerText = "Please select a state and enter a valid year.";
+      return;
+    }
+
+    // Replace with your actual backend API endpoint
+    const url = "http://localhost:5000/predict";
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ state: state, year: parseInt(year) })
+    })
+    .then(response => response.json())
+    .then(data => {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `
+        <strong>Prediction for ${state.toUpperCase()} in ${year}</strong><br>
+        Predicted Rainfall: <b>${data.predicted_rainfall.toFixed(2)} mm</b><br>
+        Deviation from Normal: <b>${data.deviation.toFixed(2)}%</b><br>
+        Risk Level: <b>${data.risk}</b>
+      `;
+    })
+    .catch(err => {
+      resultDiv.style.display = 'block';
+      resultDiv.innerText = "Error fetching prediction. Please try again.";
+      console.error(err);
+    });
+  }
+</script>
+
+</body>
+</html>
