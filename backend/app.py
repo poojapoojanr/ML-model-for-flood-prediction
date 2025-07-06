@@ -47,17 +47,34 @@ def predict_rainfall_for_state(state, year, rainfall_df, normal_df):
 
     normal = normal_df[normal_df['SUBDIVISION'] == state]['ANNUAL RAINFALL'].values
     normal_val = normal[0] if len(normal) > 0 else predicted
-    deviation = predicted - normal_val
 
-    # Risk assessment
-    if deviation < -20:
-        risk = "Drought Risk"
-    elif deviation > 20:
+    # #  Calculate % deviation
+    # deviation_percent = ((predicted - normal_val) / normal_val) * 100
+
+    # #  Risk assessment using % deviation
+    # if deviation_percent > 3:
+    #     risk = "Flood Risk"
+    # elif deviation_percent < -20:
+    #     risk = "Drought Risk"
+    # else:
+    #     risk = "Normal Risk"
+
+
+        # Risk assessment using ratio
+    ratio = predicted / normal_val
+    
+    if ratio >= 1.0:
         risk = "Flood Risk"
+    elif ratio <= 0.9:
+        risk = "Drought Risk"
     else:
-        risk = "Normal"
+        risk = "Normal Risk"
 
-    return predicted, deviation, risk, history_years, history_values, normal_val
+    deviation_percent = (ratio - 1) * 100  # Optional, if you want to display
+
+
+    return predicted, deviation_percent, risk, history_years, history_values, normal_val
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -85,7 +102,7 @@ def predict():
             "normal": float(normal)
         })
     except Exception as e:
-        print("❌ Backend error:", str(e))  # <-- will show error in terminal
+        print(" Backend error:", str(e))  # <-- will show error in terminal
         return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
